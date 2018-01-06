@@ -1,6 +1,6 @@
 {
   "name": "range-date",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "datepicker plugin Vue.js with possibility to choose date-range",
   "author": "juliette",
   "main": "dist/range-date.common.js",
