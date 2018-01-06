@@ -16,14 +16,14 @@ npm install --save range-date
 
 ```js
 import Vue from 'vue'
-import range-date from 'range-date'
+import rangeDate from 'range-date'
 // You need a specific loader for CSS files like https://github.com/webpack/css-loader
 import 'range-date/dist/range-date.css'
 
-Vue.use(range-date)
+Vue.use(rangeDate)
 ```
 ```html
-  <range-date></range-date>
+  <range-date @date-was-changed="Handler"></range-date>
 ```
 ### Browser
 

@@ -1,8 +1,24 @@
 <template>
   <div class="RangeDate" @click.stop>
     <div class="RangeDate-inputs">
-      <input type="text" v-model="formmatedRange[0]" @click="setStatusFrom('start'); openDates()" :class="statusFrom==='start'?'active': ''" readonly :name="inputNames.from"/>
-      <input type="text" v-model="formmatedRange[1]" @click="setStatusFrom('end'); openDates()" :class="statusFrom==='end'?'active': ''" readonly :name="inputNames.to"/>
+      <input type="text"
+             :name="inputNames.from"
+             :class="statusFrom==='start'?'active': ''" 
+             readonly 
+             v-model="formmatedRange[0]"
+             :placeholder="placeholders.from"
+             @click="setStatusFrom('start'); openDates()"
+              
+            />
+      <input type="text" 
+              :name="inputNames.to"
+              :class="statusFrom==='end'?'active': ''"
+              readonly
+              v-model="formmatedRange[1]"
+              :placeholder="placeholders.to"
+              @click="setStatusFrom('end'); openDates()"
+             
+            />
     </div>
     <div class="RangeDate-holder" >
       <div class="RangeDate-conteiner" :class="showDates?'active':''">
@@ -36,17 +52,17 @@
 </template>
 <script>
 import Day from './Day'
-import { format, lastDayOfMonth, startOfMonth, getISODay, subDays, addDays, isWithinRange, isAfter, isBefore, isEqual} from 'date-fns'
+import { format, lastDayOfMonth, startOfMonth, getISODay, subDays, addDays, isWithinRange, isAfter, isBefore } from 'date-fns'
 import setHours from 'date-fns/set_hours'
 const ruLocale = require('date-fns/locale/ru')
 export default {
   props: {
     startDay: {
-       type: String,
-       default () {
-         return format(new Date(), 'YYYY-MM-DD')
-       }
-     },
+      type: String,
+      default () {
+        return format(new Date(), 'YYYY-MM-DD')
+      }
+    },
     today: {
       type: String,
       default () {
@@ -56,20 +72,29 @@ export default {
     inputNames: {
       type: Object,
       default () {
-         return {
-             from:'from',
-             to:'to'
-         }
+        return {
+          from: 'from',
+          to: 'to'
+        }
       }
     },
     passedFromTo: {
-        type: Object,
-        default () {
-          return {
-            from:'',
-            to:''
-          }
+      type: Object,
+      default () {
+        return {
+          from: '',
+          to: ''
         }
+      }
+    },
+    placeholders: {
+      type: Object,
+      default () {
+        return {
+          from: '',
+          to: ''
+        }
+      }
     }
   },
   components: {
@@ -81,7 +106,7 @@ export default {
       weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       cellsLength: 42,
       selectedRange: [],
-      formmatedRange:[],
+      formmatedRange: [],
       statusFrom: '',
       showDates: false
     }
@@ -90,80 +115,80 @@ export default {
     this.$on('change-range', function (day) {
       this.changeRange(day)
     })
-    document.addEventListener('click', ()=> {
-       this.closeDates()
+    document.addEventListener('click', () => {
+      this.closeDates()
     })
   },
   destroyed () {
-    document.removeEventListener('click', ()=> {
+    document.removeEventListener('click', () => {
     })
   },
   mounted () {
-    if((this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
-      let {from, to} = this.passedFromTo
+    if ((this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
+      let { from, to } = this.passedFromTo
       from = setHours(new Date(from), 0)
       to = setHours(new Date(to), 0)
       if (isAfter(new Date(to), new Date(from))) {
         this.$set(this.selectedRange, 0, new Date(from))
         this.$set(this.selectedRange, 1, new Date(to))
-        this.$set(this.formmatedRange, 0, format(new Date(from), 'DD MMMM YYYY', {locale: ruLocale}))
-        this.$set(this.formmatedRange, 1, format(new Date(to), 'DD MMMM YYYY', {locale: ruLocale}))
+        this.$set(this.formmatedRange, 0, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
+        this.$set(this.formmatedRange, 1, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
       } else {
         this.$set(this.selectedRange, 1, new Date(from))
         this.$set(this.selectedRange, 0, new Date(to))
-        this.$set(this.formmatedRange, 1, format(new Date(from), 'DD MMMM YYYY', {locale: ruLocale}))
-        this.$set(this.formmatedRange, 0, format(new Date(to), 'DD MMMM YYYY', {locale: ruLocale}))
+        this.$set(this.formmatedRange, 1, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
+        this.$set(this.formmatedRange, 0, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
       }
     }
   },
   computed: {
-     dateComp () {
-       if (this.date) {
-         return this.date
-       } else {
-         return this.startDay
-       }
-     },
-     currentDate () {
-       return {month: format(this.dateComp, 'MMMM', {locale: ruLocale}), year: format(this.dateComp, 'YYYY')}
-     },
-     startMonthDay () {
-       return startOfMonth(this.dateComp)
-     },
-     lastMonthDay () {
-       return lastDayOfMonth(this.dateComp)
-     },
-     currentMonth () {
-       let month = []
-       let startDayWeek = getISODay(this.startMonthDay)
-       let endDayNumber = Number(format(this.lastMonthDay, 'DD'))
-       let prevMonthFirstDay =  subDays(this.startMonthDay, startDayWeek - 1)
-       for (let i = 0; i < startDayWeek - 1; i++) {
-         this.collectDays(month, prevMonthFirstDay, i, true)
-       }
-       for(let i = 0; i < endDayNumber; i++) {
-         this.collectDays(month, this.startMonthDay, i, false)
-       }
-       if (month.length < this.cellsLength) {
-          let lengthDiff =  this.cellsLength - month.length
-          for(let i = 1; i <= lengthDiff; i++) {
-           this.collectDays(month, this.lastMonthDay, i, true)
-          }
-       }
-       this.setRangeOption(month)
-       this.setToday(month, new Date(this.today))
-       return month
-     }
+    dateComp () {
+      if (this.date) {
+        return this.date
+      } else {
+        return this.startDay
+      }
+    },
+    currentDate () {
+      return { month: format(this.dateComp, 'MMMM', { locale: ruLocale }), year: format(this.dateComp, 'YYYY') }
+    },
+    startMonthDay () {
+      return startOfMonth(this.dateComp)
+    },
+    lastMonthDay () {
+      return lastDayOfMonth(this.dateComp)
+    },
+    currentMonth () {
+      const month = []
+      const startDayWeek = getISODay(this.startMonthDay)
+      const endDayNumber = Number(format(this.lastMonthDay, 'DD'))
+      const prevMonthFirstDay = subDays(this.startMonthDay, startDayWeek - 1)
+      for (let i = 0; i < startDayWeek - 1; i++) {
+        this.collectDays(month, prevMonthFirstDay, i, true)
+      }
+      for (let i = 0; i < endDayNumber; i++) {
+        this.collectDays(month, this.startMonthDay, i, false)
+      }
+      if (month.length < this.cellsLength) {
+        const lengthDiff = this.cellsLength - month.length
+        for (let i = 1; i <= lengthDiff; i++) {
+          this.collectDays(month, this.lastMonthDay, i, true)
+        }
+      }
+      this.setRangeOption(month)
+      this.setToday(month, new Date(this.today))
+      return month
+    }
   },
   methods: {
     collectDays (arr, day, i, disabled) {
-      let date = addDays(new Date(day), i)
+      const date = addDays(new Date(day), i)
       let inRange = false
-      let today = false
-      if(this.selectedRange.length > 0) {
-         inRange = isWithinRange(day, this.selectedRange[0].day, this.selectedRange[1].day)
+      const today = false
+      if (this.selectedRange.length > 0) {
+        inRange = isWithinRange(day, this.selectedRange[0].day, this.selectedRange[1].day)
       }
-      arr.push({date:date, disabled:disabled, inRange:inRange, today:today})
+      arr.push({ date: date, disabled: disabled, inRange: inRange, today: today })
     },
     takeNextMonth () {
       this.date = addDays(this.lastMonthDay, 1)
@@ -173,7 +198,7 @@ export default {
     },
     setRangeOption (monthArr) {
       monthArr.forEach((day) => {
-        if(isWithinRange(day.date, this.selectedRange[0], this.selectedRange[1])) {
+        if (isWithinRange(day.date, this.selectedRange[0], this.selectedRange[1])) {
           day.inRange = true
         } else {
           day.inRange = false
@@ -182,9 +207,9 @@ export default {
     },
     setToday (monthArr, setedToday) {
       monthArr.forEach((day) => {
-        let today = format(setedToday, 'YYYY-MM-DD')
-        let sinDay = format(new Date(day.date), 'YYYY-MM-DD')
-        if(today === sinDay) {
+        const today = format(setedToday, 'YYYY-MM-DD')
+        const sinDay = format(new Date(day.date), 'YYYY-MM-DD')
+        if (today === sinDay) {
           day.today = true
         } else {
           day.today = false
@@ -193,32 +218,32 @@ export default {
     },
     changeRange (data) {
       if (this.selectedRange.length > 0) {
-         let [first, second] = this.selectedRange
+        const [first, second] = this.selectedRange
 
-         if (isAfter(data.day, second)) {
-           this.$set(this.selectedRange, 1, data.day)
-           this.$set(this.formmatedRange, 1, format(data.day, 'DD MMMM YYYY', {locale: ruLocale}))
-         } else if (isBefore(data.day, second) && isAfter(data.day, first) && this.statusFrom === 'end'){
-           this.$set(this.selectedRange, 1, data.day)
-           this.$set(this.formmatedRange, 1, format(data.day, 'DD MMMM YYYY', {locale: ruLocale}))
-         } else if (isBefore(data.day, second) && isAfter(data.day, first) && this.statusFrom === 'start'){
-           this.$set(this.selectedRange, 0, data.day)
-           this.$set(this.formmatedRange, 0, format(data.day, 'DD MMMM YYYY', {locale: ruLocale}))
-         } else if (isBefore(data.day, first)) {
-           this.$set(this.selectedRange, 0, data.day)
-           this.$set(this.formmatedRange, 0, format(data.day, 'DD MMMM YYYY', {locale: ruLocale}))
-         }
+        if (isAfter(data.day, second)) {
+          this.$set(this.selectedRange, 1, data.day)
+          this.$set(this.formmatedRange, 1, format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
+        } else if (isBefore(data.day, second) && isAfter(data.day, first) && this.statusFrom === 'end') {
+          this.$set(this.selectedRange, 1, data.day)
+          this.$set(this.formmatedRange, 1, format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
+        } else if (isBefore(data.day, second) && isAfter(data.day, first) && this.statusFrom === 'start') {
+          this.$set(this.selectedRange, 0, data.day)
+          this.$set(this.formmatedRange, 0, format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
+        } else if (isBefore(data.day, first)) {
+          this.$set(this.selectedRange, 0, data.day)
+          this.$set(this.formmatedRange, 0, format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
+        }
       } else {
         this.selectedRange.push(data.day)
         this.selectedRange.push(data.day)
-        this.formmatedRange.push(format(data.day, 'DD MMMM YYYY', {locale: ruLocale}))
-        this.formmatedRange.push(format(data.day, 'DD MMMM YYYY', {locale: ruLocale}))
+        this.formmatedRange.push(format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
+        this.formmatedRange.push(format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
       }
       this.setRangeOption(this.currentMonth)
-      if (this.selectedRange.length > 0 && this.selectedRange[0]!==this.selectedRange[1]) {
-          setTimeout(() => {
-            this.closeDates()
-          }, 500)
+      if (this.selectedRange.length > 0 && this.selectedRange[0] !== this.selectedRange[1]) {
+        setTimeout(() => {
+          this.closeDates()
+        }, 500)
       }
     },
     setStatusFrom (data) {
@@ -230,6 +255,7 @@ export default {
     closeDates () {
       this.showDates = false
       this.statusFrom = ''
+      this.$emit('date-was-changed', [this.selectedRange[0], this.selectedRange[1]])
     }
   }
 }

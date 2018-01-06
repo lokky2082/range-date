@@ -99,7 +99,7 @@
   },
   "peerDependencies": {
     "vue": "^2.3.0",
-    "date-fns":"^1.29.0"
+    "date-fns": "^1.29.0"
   },
   "dllPlugin": {
     "name": "vuePluginTemplateDeps",
