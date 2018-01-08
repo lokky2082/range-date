@@ -134,11 +134,12 @@ export default {
       this.changeRange(day)
     })
     document.addEventListener('click', () => {
-      this.closeDates()
+      this.simpleClose()
     })
   },
   destroyed () {
     document.removeEventListener('click', () => {
+      this.simpleClose()
     })
   },
   mounted () {
@@ -221,7 +222,7 @@ export default {
       this.date = subDays(this.startMonthDay, 1)
     },
     setRangeOption (monthArr) {
-      if(!this.single) {
+      if (!this.single) {
         monthArr.forEach((day) => {
           if (isWithinRange(day.date, this.selectedRange[0], this.selectedRange[1])) {
             day.inRange = true
@@ -251,14 +252,14 @@ export default {
       })
     },
     changeRange (data) {
-      if(!this.single) {
-        this.notSingleChange (data)
+      if (!this.single) {
+        this.notSingleChange(data)
       } else {
-        this.singleChange (data)
+        this.singleChange(data)
       }
     },
     notSingleChange (data) {
-       if (this.selectedRange.length > 0) {
+      if (this.selectedRange.length > 0) {
         const [first, second] = this.selectedRange
         if (isAfter(data.day, second)) {
           this.$set(this.selectedRange, 1, data.day)
@@ -291,7 +292,7 @@ export default {
       this.singleFormated = format(setHours(data.day, 0), 'DD.MM.YYYY')
       this.setRangeOption(this.currentMonth)
       setTimeout(() => {
-          this.closeDates()
+        this.closeDates()
       }, 500)
     },
     setStatusFrom (data) {
@@ -316,12 +317,16 @@ export default {
       this.showDates = false
       this.statusFrom = ''
       this.$emit('date-was-changed', this.selected)
+    },
+    simpleClose () {
+      this.showDates = false
+      this.statusFrom = ''
     }
   }
 }
 </script>
 
-<style>
+<style >
   .RangeDate {
     position:relative;
     * {

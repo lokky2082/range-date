@@ -5,9 +5,9 @@ import { createVM } from '../helpers/utils.js'
 } */
 /* :single="true"
    :passedFromTo="{from: '2017-11-10', to: '2017-11-20', single: '2018-01-10'}"
-   :inputNames="{from:'from', to:'to', single: 'from'}" 
+   :inputNames="{from:'from', to:'to', single: 'from'}"
    :startDay="'2017-11-10'"
-   :today="'2017-11-16'" 
+   :today="'2017-11-16'"
    :singleDate= "'2018-01-10'" */
 describe('rangeDate.vue', function () {
   it('should render correct contents', function () {
