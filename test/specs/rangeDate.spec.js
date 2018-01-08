@@ -3,14 +3,16 @@ import { createVM } from '../helpers/utils.js'
 /* const options = {
   startDay: '22.11.2017'
 } */
-// :passedFromTo="{from: '2017-11-10', to: '2017-11-20'}"
+/* :single="true"
+   :passedFromTo="{from: '2017-11-10', to: '2017-11-20', single: '2018-01-10'}"
+   :inputNames="{from:'from', to:'to', single: 'from'}" 
+   :startDay="'2017-11-10'"
+   :today="'2017-11-16'" 
+   :singleDate= "'2018-01-10'" */
 describe('rangeDate.vue', function () {
   it('should render correct contents', function () {
     const vm = createVM(this, `<range-date 
-                                  :startDay="'2017-11-10'" 
-                                  :today="'2017-11-16'" 
-                                  :inputNames="{from:'from', to:'to'}" 
-                                  :placeholders="{from:'c', to:'по'}"
+                                  :single="true"
                                   @date-was-changed="ChangedDate" >
                                   </range-date>`,
       { components: { rangeDate },

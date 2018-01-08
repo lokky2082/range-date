@@ -1,24 +1,31 @@
 <template>
   <div class="RangeDate" @click.stop>
     <div class="RangeDate-inputs">
-      <input type="text"
-             :name="inputNames.from"
-             :class="statusFrom==='start'?'active': ''" 
-             readonly 
-             v-model="formmatedRange[0]"
-             :placeholder="placeholders.from"
-             @click="setStatusFrom('start'); openDates()"
-              
-            />
-      <input type="text" 
-              :name="inputNames.to"
-              :class="statusFrom==='end'?'active': ''"
-              readonly
-              v-model="formmatedRange[1]"
-              :placeholder="placeholders.to"
-              @click="setStatusFrom('end'); openDates()"
-             
-            />
+      <template v-if="!single">
+        <input type="text"
+              :name="inputNames.from"
+              :class="statusFrom==='start'?'active': ''" 
+              readonly 
+              v-model="formmatedRange[0]"
+              :placeholder="placeholders.from"
+              @click="setStatusFrom('start'); openDates()"/>
+        <input type="text" 
+                :name="inputNames.to"
+                :class="statusFrom==='end'?'active': ''"
+                readonly
+                v-model="formmatedRange[1]"
+                :placeholder="placeholders.to"
+                @click="setStatusFrom('end'); openDates()"/>
+      </template>
+      <template v-else>
+           <input type="text"
+              :name="inputNames.single"
+              readonly 
+              v-model="singleFormated"
+              :placeholder="placeholders.from"
+              @click="openDates()"/>
+      </template>
+         
     </div>
     <div class="RangeDate-holder" >
       <div class="RangeDate-conteiner" :class="showDates?'active':''">
@@ -95,6 +102,15 @@ export default {
           to: ''
         }
       }
+    },
+    singleDate: {
+      type: String
+    },
+    single: {
+      type: Boolean,
+      default () {
+        return false
+      }
     }
   },
   components: {
@@ -108,7 +124,9 @@ export default {
       selectedRange: [],
       formmatedRange: [],
       statusFrom: '',
-      showDates: false
+      showDates: false,
+      singleFormated: '',
+      selected: null
     }
   },
   created () {
@@ -124,7 +142,7 @@ export default {
     })
   },
   mounted () {
-    if ((this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
+    if (!this.single && (this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
       let { from, to } = this.passedFromTo
       from = setHours(new Date(from), 0)
       to = setHours(new Date(to), 0)
@@ -139,6 +157,10 @@ export default {
         this.$set(this.formmatedRange, 1, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
         this.$set(this.formmatedRange, 0, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
       }
+    }
+    if (this.single && this.singleDate) {
+      this.singleFormated = format(setHours(new Date(this.singleDate), 0), 'DD.MM.YYYY')
+      this.selected = setHours(new Date(this.singleDate), 0)
     }
   },
   computed: {
@@ -187,6 +209,8 @@ export default {
       const today = false
       if (this.selectedRange.length > 0) {
         inRange = isWithinRange(day, this.selectedRange[0].day, this.selectedRange[1].day)
+      } else if (this.selected !== null) {
+        inRange = isWithinRange(day, this.selected, this.selected)
       }
       arr.push({ date: date, disabled: disabled, inRange: inRange, today: today })
     },
@@ -197,13 +221,23 @@ export default {
       this.date = subDays(this.startMonthDay, 1)
     },
     setRangeOption (monthArr) {
-      monthArr.forEach((day) => {
-        if (isWithinRange(day.date, this.selectedRange[0], this.selectedRange[1])) {
-          day.inRange = true
-        } else {
-          day.inRange = false
-        }
-      })
+      if(!this.single) {
+        monthArr.forEach((day) => {
+          if (isWithinRange(day.date, this.selectedRange[0], this.selectedRange[1])) {
+            day.inRange = true
+          } else {
+            day.inRange = false
+          }
+        })
+      } else {
+        monthArr.forEach((day) => {
+          if (isWithinRange(day.date, this.selected, this.selected)) {
+            day.inRange = true
+          } else {
+            day.inRange = false
+          }
+        })
+      }
     },
     setToday (monthArr, setedToday) {
       monthArr.forEach((day) => {
@@ -217,9 +251,15 @@ export default {
       })
     },
     changeRange (data) {
-      if (this.selectedRange.length > 0) {
+      if(!this.single) {
+        this.notSingleChange (data)
+      } else {
+        this.singleChange (data)
+      }
+    },
+    notSingleChange (data) {
+       if (this.selectedRange.length > 0) {
         const [first, second] = this.selectedRange
-
         if (isAfter(data.day, second)) {
           this.$set(this.selectedRange, 1, data.day)
           this.$set(this.formmatedRange, 1, format(data.day, 'DD MMMM YYYY', { locale: ruLocale }))
@@ -246,6 +286,14 @@ export default {
         }, 500)
       }
     },
+    singleChange (data) {
+      this.selected = data.day
+      this.singleFormated = format(setHours(data.day, 0), 'DD.MM.YYYY')
+      this.setRangeOption(this.currentMonth)
+      setTimeout(() => {
+          this.closeDates()
+      }, 500)
+    },
     setStatusFrom (data) {
       this.statusFrom = data
     },
@@ -253,9 +301,21 @@ export default {
       this.showDates = true
     },
     closeDates () {
+      if (this.single) {
+        this.closeDatesSingle()
+      } else {
+        this.closeDatesRange()
+      }
+    },
+    closeDatesRange () {
       this.showDates = false
       this.statusFrom = ''
       this.$emit('date-was-changed', [this.selectedRange[0], this.selectedRange[1]])
+    },
+    closeDatesSingle () {
+      this.showDates = false
+      this.statusFrom = ''
+      this.$emit('date-was-changed', this.selected)
     }
   }
 }
@@ -264,7 +324,7 @@ export default {
 <style>
   .RangeDate {
     position:relative;
-    *{
+    * {
       box-sizing: border-box;
     }
   }
