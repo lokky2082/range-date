@@ -64,6 +64,12 @@ import setHours from 'date-fns/set_hours'
 const ruLocale = require('date-fns/locale/ru')
 export default {
   props: {
+    value: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
     startDay: {
       type: String,
       default () {
@@ -130,6 +136,11 @@ export default {
     }
   },
   created () {
+    console.log(this.value)
+    if (this.value.length > 0) {
+      this.selectedRange = this.value
+      console.log(this.selectedRange)
+    }
     this.$on('change-range', function (day) {
       this.changeRange(day)
     })
@@ -145,23 +156,17 @@ export default {
   mounted () {
     if (!this.single && (this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
       let { from, to } = this.passedFromTo
-      from = setHours(new Date(from), 0)
-      to = setHours(new Date(to), 0)
-      if (isAfter(new Date(to), new Date(from))) {
-        this.$set(this.selectedRange, 0, new Date(from))
-        this.$set(this.selectedRange, 1, new Date(to))
-        this.$set(this.formmatedRange, 0, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
-        this.$set(this.formmatedRange, 1, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
-      } else {
-        this.$set(this.selectedRange, 1, new Date(from))
-        this.$set(this.selectedRange, 0, new Date(to))
-        this.$set(this.formmatedRange, 1, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
-        this.$set(this.formmatedRange, 0, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
-      }
+      this.setFromTo(from, to)
+    } else if (!this.single && (this.value.length > 0)) {
+      let [ from, to ] = this.value
+      this.setFromTo(from, to)
     }
     if (this.single && this.singleDate) {
       this.singleFormated = format(setHours(new Date(this.singleDate), 0), 'DD.MM.YYYY')
       this.selected = setHours(new Date(this.singleDate), 0)
+    } else if (this.single && (this.value.length > 0)) {
+      this.singleFormated = format(setHours(new Date(this.value[0]), 0), 'DD.MM.YYYY')
+      this.selected = setHours(new Date(this.value[0]), 0)
     }
   },
   computed: {
@@ -298,6 +303,21 @@ export default {
     setStatusFrom (data) {
       this.statusFrom = data
     },
+    setFromTo (from, to) {
+      from = setHours(new Date(from), 0)
+      to = setHours(new Date(to), 0)
+      if (isAfter(new Date(to), new Date(from))) {
+        this.$set(this.selectedRange, 0, new Date(from))
+        this.$set(this.selectedRange, 1, new Date(to))
+        this.$set(this.formmatedRange, 0, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
+        this.$set(this.formmatedRange, 1, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
+      } else {
+        this.$set(this.selectedRange, 1, new Date(from))
+        this.$set(this.selectedRange, 0, new Date(to))
+        this.$set(this.formmatedRange, 1, format(new Date(from), 'DD MMMM YYYY', { locale: ruLocale }))
+        this.$set(this.formmatedRange, 0, format(new Date(to), 'DD MMMM YYYY', { locale: ruLocale }))
+      }
+    },
     openDates () {
       this.showDates = true
     },
@@ -311,12 +331,17 @@ export default {
     closeDatesRange () {
       this.showDates = false
       this.statusFrom = ''
+      this.value[0] = format(this.selectedRange[0], 'YYYY-MM-DD')
+      this.value[1] = format(this.selectedRange[1], 'YYYY-MM-DD')
       this.$emit('date-was-changed', [this.selectedRange[0], this.selectedRange[1]])
+      this.$emit('input', this.value)
     },
     closeDatesSingle () {
       this.showDates = false
       this.statusFrom = ''
+      this.value[0] = format(this.selected, 'YYYY-MM-DD')
       this.$emit('date-was-changed', this.selected)
+      this.$emit('input', this.value)
     },
     simpleClose () {
       this.showDates = false
