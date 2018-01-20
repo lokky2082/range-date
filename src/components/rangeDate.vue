@@ -142,30 +142,17 @@ export default {
     document.addEventListener('click', () => {
       this.simpleClose()
     })
+    this.setData()
   },
   destroyed () {
     document.removeEventListener('click', () => {
       this.simpleClose()
     })
   },
-  mounted () {
-    if (!this.single && (this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
-      const { from, to } = this.passedFromTo
-      this.setFromTo(from, to)
-    } else if (!this.single && (this.value.length > 1)) {
-      const [from, to] = this.value
-      this.setFromTo(from, to)
-    }
-    if (this.single && this.singleDate) {
-      this.singleFormated = format(setHours(new Date(this.singleDate), 0), 'DD.MM.YYYY')
-      this.selected = setHours(new Date(this.singleDate), 0)
-    } 
-    if (this.single && (this.value.length > 0) && !this.singleDate) {
-      this.singleFormated = format(setHours(new Date(this.value[0]), 0), 'DD.MM.YYYY')
-      this.selected = setHours(new Date(this.value[0]), 0)
-      console.log('mounted', this.selected)
-    }
-    console.log('mountedAfter', this.selected)
+  watch: {
+   value: function () {
+     this.setData()
+   }
   },
   computed: {
     dateComp () {
@@ -344,6 +331,23 @@ export default {
     simpleClose () {
       this.showDates = false
       this.statusFrom = ''
+    },
+    setData () {
+      if (!this.single && (this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
+        const { from, to } = this.passedFromTo
+        this.setFromTo(from, to)
+      } else if (!this.single && (this.value.length > 1)) {
+        const [from, to] = this.value
+        this.setFromTo(from, to)
+      }
+      if (this.single && this.singleDate) {
+        this.singleFormated = format(setHours(new Date(this.singleDate), 0), 'DD.MM.YYYY')
+        this.selected = setHours(new Date(this.singleDate), 0)
+      } 
+      if (this.single && (this.value.length > 0) && !this.singleDate) {
+        this.singleFormated = format(setHours(new Date(this.value[0]), 0), 'DD.MM.YYYY')
+        this.selected = setHours(new Date(this.value[0]), 0)
+      }
     }
   }
 }

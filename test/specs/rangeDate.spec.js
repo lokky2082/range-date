@@ -11,22 +11,33 @@ import { createVM } from '../helpers/utils.js'
    :singleDate= "'2018-01-10'" */
 describe('rangeDate.vue', function () {
   it('should render correct contents', function () {
-    const vm = createVM(this, `<range-date
+    const vm = createVM(this, `   
+                                 <range-date
                                   v-model="range"
                                   :single="true"
-                                  @date-was-changed="ChangedDate" >
+                                 >
                                   </range-date>`,
       { components: { rangeDate },
         data () {
           return {
-            range: ['2018-01-22']
+            range: []
           }
+        },
+        created () {
+          this.setDate()
         },
         methods: {
           ChangedDate (dates) {
             console.log('newRange', this.range)
             console.log('date-was-changed')
             console.log(dates)
+          },
+          setDate () {
+            fetch('http://estroy.phoenix-cg.ru/api/tenders/').then((response) => {
+              return response.data
+            }).then((res) => {
+              this.range.push('2018-01-18')
+            })
           }
         }
       })
