@@ -19,7 +19,7 @@ describe('rangeDate.vue', function () {
       { components: { rangeDate },
         data () {
           return {
-            range: ['2018-01-22', '2018-01-26']
+            range: ['2018-01-22']
           }
         },
         methods: {

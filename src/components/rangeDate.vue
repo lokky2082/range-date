@@ -66,7 +66,7 @@ export default {
   props: {
     value: {
       type: Array,
-      default() {
+      default () {
         return []
       }
     },
@@ -136,11 +136,6 @@ export default {
     }
   },
   created () {
-    console.log(this.value)
-    if (this.value.length > 0) {
-      this.selectedRange = this.value
-      console.log(this.selectedRange)
-    }
     this.$on('change-range', function (day) {
       this.changeRange(day)
     })
@@ -155,19 +150,22 @@ export default {
   },
   mounted () {
     if (!this.single && (this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
-      let { from, to } = this.passedFromTo
+      const { from, to } = this.passedFromTo
       this.setFromTo(from, to)
-    } else if (!this.single && (this.value.length > 0)) {
-      let [ from, to ] = this.value
+    } else if (!this.single && (this.value.length > 1)) {
+      const [from, to] = this.value
       this.setFromTo(from, to)
     }
     if (this.single && this.singleDate) {
       this.singleFormated = format(setHours(new Date(this.singleDate), 0), 'DD.MM.YYYY')
       this.selected = setHours(new Date(this.singleDate), 0)
-    } else if (this.single && (this.value.length > 0)) {
+    } 
+    if (this.single && (this.value.length > 0) && !this.singleDate) {
       this.singleFormated = format(setHours(new Date(this.value[0]), 0), 'DD.MM.YYYY')
       this.selected = setHours(new Date(this.value[0]), 0)
+      console.log('mounted', this.selected)
     }
+    console.log('mountedAfter', this.selected)
   },
   computed: {
     dateComp () {
