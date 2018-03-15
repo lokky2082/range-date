@@ -344,9 +344,9 @@ export default {
         const { from, to } = this.passedFromTo
         this.setFromTo(from, to)
       } else if (!this.single && (this.value.length > 0)) {
-        let from  = this.value[0]
-        let to = this.value[1] || this.value[0]
-        //const [from, to] = this.value
+        const from = this.value[0]
+        const to = this.value[1] || this.value[0]
+        // const [from, to] = this.value
         this.setFromTo(from, to)
       }
       if (this.single && this.singleDate) {
@@ -356,7 +356,7 @@ export default {
       if (this.single && (this.value.length > 0) && !this.singleDate) {
         this.singleFormated = format(setHours(new Date(this.value[0]), 0), 'DD.MM.YYYY')
         this.selected = setHours(new Date(this.value[0]), 0)
-      } 
+      }
     }
   }
 }
