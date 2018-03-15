@@ -150,9 +150,10 @@ export default {
     })
   },
   watch: {
-   value: function () {
-     this.setData()
-   }
+    value: function () {
+      console.log(this.value)
+      this.setData()
+    }
   },
   computed: {
     dateComp () {
@@ -316,15 +317,17 @@ export default {
     closeDatesRange () {
       this.showDates = false
       this.statusFrom = ''
-      this.value[0] = format(this.selectedRange[0], 'YYYY-MM-DD')
-      this.value[1] = format(this.selectedRange[1], 'YYYY-MM-DD')
+      // this.value[0] = format(this.selectedRange[0], 'YYYY-MM-DD')
+      // this.value[1] = format(this.selectedRange[1], 'YYYY-MM-DD')
+      this.$set(this.value, 0, format(this.selectedRange[0], 'YYYY-MM-DD'))
+      this.$set(this.value, 1, format(this.selectedRange[1], 'YYYY-MM-DD'))
       this.$emit('date-was-changed', [this.selectedRange[0], this.selectedRange[1]])
       this.$emit('input', this.value)
     },
     closeDatesSingle () {
       this.showDates = false
       this.statusFrom = ''
-      this.value[0] = format(this.selected, 'YYYY-MM-DD')
+      this.$set(this.value, 0, format(this.selected, 'YYYY-MM-DD'))
       this.$emit('date-was-changed', this.selected)
       this.$emit('input', this.value)
     },
@@ -333,21 +336,27 @@ export default {
       this.statusFrom = ''
     },
     setData () {
+      if (this.value.length === 0) {
+        this.selectedRange = []
+        this.formmatedRange = []
+      }
       if (!this.single && (this.passedFromTo.from !== '') && (this.passedFromTo.to !== '')) {
         const { from, to } = this.passedFromTo
         this.setFromTo(from, to)
-      } else if (!this.single && (this.value.length > 1)) {
-        const [from, to] = this.value
+      } else if (!this.single && (this.value.length > 0)) {
+        let from  = this.value[0]
+        let to = this.value[1] || this.value[0]
+        //const [from, to] = this.value
         this.setFromTo(from, to)
       }
       if (this.single && this.singleDate) {
         this.singleFormated = format(setHours(new Date(this.singleDate), 0), 'DD.MM.YYYY')
         this.selected = setHours(new Date(this.singleDate), 0)
-      } 
+      }
       if (this.single && (this.value.length > 0) && !this.singleDate) {
         this.singleFormated = format(setHours(new Date(this.value[0]), 0), 'DD.MM.YYYY')
         this.selected = setHours(new Date(this.value[0]), 0)
-      }
+      } 
     }
   }
 }

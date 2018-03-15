@@ -11,10 +11,9 @@ import { createVM } from '../helpers/utils.js'
    :singleDate= "'2018-01-10'" */
 describe('rangeDate.vue', function () {
   it('should render correct contents', function () {
-    const vm = createVM(this, `   
+    const vm = createVM(this, `   {{range}}
                                  <range-date
                                   v-model="range"
-                                  :single="true"
                                  >
                                   </range-date>`,
       { components: { rangeDate },
@@ -25,6 +24,10 @@ describe('rangeDate.vue', function () {
         },
         created () {
           this.setDate()
+          setTimeout(() => {
+            this.range = []
+            console.log(this.range)
+          }, 2000)
         },
         methods: {
           ChangedDate (dates) {
