@@ -151,7 +151,6 @@ export default {
   },
   watch: {
     value: function () {
-      console.log(this.value)
       this.setData()
     }
   },
@@ -160,7 +159,11 @@ export default {
       if (this.date) {
         return this.date
       } else {
-        return this.startDay
+        let returnedDay = new Date()
+        if (this.startDay !== '') {
+          returnedDay = this.startDay
+        }
+        return returnedDay
       }
     },
     currentDate () {

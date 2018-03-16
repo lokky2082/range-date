@@ -13,7 +13,8 @@ describe('rangeDate.vue', function () {
   it('should render correct contents', function () {
     const vm = createVM(this, `   {{range}}
                                  <range-date
-                                  v-model="range"
+                                 :passedFromTo="{from: '', to: ''}"
+                                 :startDay="''"
                                  >
                                   </range-date>`,
       { components: { rangeDate },
